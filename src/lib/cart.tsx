@@ -52,12 +52,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
       subtotal: detailed.reduce((n, l) => n + l.product.price * l.qty, 0),
       add: (slug, size, qty = 1) =>
         setLines((prev) => {
-          const i = prev.findIndex((l) => l.slug === slug && l.size === size);
-          if (i === -1) return [...prev, { slug, size, qty }];
-          const next = [...prev];
-          next[i] = { ...next[i], qty: next[i].qty + qty };
-          return next;
+          const existing = prev.find((l) => l.slug === slug && l.size === size);
+          if (!existing) return [...prev, { slug, size, qty }];
+          return prev.map((l) =>
+            l.slug === slug && l.size === size ? { ...l, qty: l.qty + qty } : l,
+          );
         }),
+
       remove: (slug, size) =>
         setLines((prev) => prev.filter((l) => !(l.slug === slug && l.size === size))),
       setQty: (slug, size, qty) =>
